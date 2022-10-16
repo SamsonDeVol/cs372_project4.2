@@ -23,20 +23,26 @@ def get_next_word_packet(s):
 
     global packet_buffer
     word_packet = b''
+
     while True:
-        #print("s:", packet_buffer)
+
+        # get packet length w/ bits = WORD_LEN_SIZE value
         end_of_packet = int.from_bytes(packet_buffer[0:WORD_LEN_SIZE], byteorder="big")
+
+        # if end_of_packet is not null and has enough bits to capture whole word
         if end_of_packet != 0 and end_of_packet + WORD_LEN_SIZE <= len(packet_buffer):
-            #print("e:", end_of_packet)
-            #print("b:", packet_buffer)
+            # save word_packet to own variable and drop from packet_buffer
             word_packet = packet_buffer[:end_of_packet + WORD_LEN_SIZE]
             packet_buffer = packet_buffer[end_of_packet + WORD_LEN_SIZE:]
             break
+
         chunk = s.recv(5)
+
         if chunk == b'':
             return None
-        packet_buffer += chunk
 
+        packet_buffer += chunk
+        
     return word_packet
         
 
@@ -50,8 +56,6 @@ def extract_word(word_packet):
 
     Returns the word decoded as a string.
     """
-
-    #print("in extract:", word_packet)
     word = word_packet[2:].decode()
     return word
 
